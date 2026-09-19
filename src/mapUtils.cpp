@@ -16,6 +16,7 @@ Matrix readMap(const std::string& filePath) {
     std::string line;
     std::size_t lineNumber = 0;
 
+    // Read and create the matrix
     while (std::getline(file, line)) {
         ++lineNumber;
         std::istringstream stream(line);
