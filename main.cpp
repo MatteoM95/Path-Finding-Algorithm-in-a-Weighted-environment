@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    //  Read weighted map
     try {
         Matrix inputMap = readMap(argv[1]);
 
