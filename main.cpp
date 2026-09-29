@@ -5,9 +5,10 @@
 #include <vector>
 
 
-#include mapUtils.h
+#include "mapUtils.h"
 
 int main(int argc, char* argv[]) {
+
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " /data/map.txt\n";
         return 1;

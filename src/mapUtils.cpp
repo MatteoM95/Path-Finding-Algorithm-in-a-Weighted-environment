@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 
-using Matrix = std::vector<std::vector<double>>;
+#include "mapUtils.h"
+
 
 Matrix readMap(const std::string& filePath) {
     std::ifstream file(filePath);
