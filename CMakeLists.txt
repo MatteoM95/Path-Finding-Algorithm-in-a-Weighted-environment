@@ -6,6 +6,8 @@ add_executable(pathfinder
     main.cpp
     src/mapUtils.cpp
     src/utils.cpp
+    src/dijkstra.cpp
+    src/point.cpp
 )
 
 target_include_directories(pathfinder PRIVATE
