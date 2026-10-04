@@ -141,7 +141,7 @@ Function with Dijkstra Algorithm
 @param2: source position
 @param3: destination position
 */
-void dijkstra::dijkstraAlgorithm(int** matrix, int source, int destination) {
+void dijkstra::dijkstraAlgorithm(Matrix matrix, int source, int destination) {
 
 	int* distance =  (int*)malloc((numVertices + 10) * sizeof(int)); //new int[numVertices];     //array of distance from every node
 	int* parent = (int*)malloc((numVertices + 10) * sizeof(int)); //new int[numVertices];      //array with all previous node visit
@@ -225,8 +225,8 @@ void dijkstra::retrieve_coordinate(int* i, int* j, int p, int** m) {
 	//** FIND A BETTER SOLUTION FOR THIS FUNCTION **
 
 	int cnt = 0;
-	for (int s = 0; s < rows; s++) {
-		for (int g = 0; g < cols; g++) {
+	for (int s = 0; s < rowsMap; s++) {
+		for (int g = 0; g < colsMap; g++) {
 			cnt++;
 			if (cnt == p) {
 				*i = s;
@@ -244,7 +244,7 @@ Create the Adjacency matrix (diagonal is always 0) from the map matrix
 @Param3: width of cloud map
 @Return: the weighted adjacency matrix (the graph)
 */
-int** dijkstra::createGraph(int** weightedMap) {
+Matrix dijkstra::createGraphAdjMatr(Matrix weightedMap) {
 
 	int** graph = (int**)malloc((numVertices + 1) * sizeof(int*)); //new int*[numVertices + 1];
 	for (int i = 0; i < (numVertices + 1); i++)
@@ -296,18 +296,18 @@ int** dijkstra::createGraph(int** weightedMap) {
 		}
 	}
 
-	matrix = (int**)malloc((numVertices + 1) * sizeof(int*)); //new int*[numVertices + 1];
+	adjWeightedMap = (int**)malloc((numVertices + 1) * sizeof(int*)); //new int*[numVertices + 1];
 	for (int i = 0; i < (numVertices + 1); i++)
 		matrix[i] = (int*)malloc( (numVertices + 1) * sizeof(int)); //new int*[numVertices + 1];
 
 	//Delete the first row and first column (that are only 0 values) -> create the adjacency matrix
 	for (int i = 1; i < (numVertices + 1); i++) {
 		for (int j = 1; j < (numVertices + 1); j++) {
-			matrix[i - 1][j - 1] = graph[i][j];
+			adjWeightedMap[i - 1][j - 1] = graph[i][j];
 		}
 	}
 
-	return matrix;
+	return adjWeightedMap;
 }
 
 //function that retrieve value(cost) from a position 
@@ -349,25 +349,27 @@ int dijkstra::findPosition(Point** weightedMap, Point pp, int row, int col) {
 @param3: number cols map
 @param4: source position
 @param5: destination position
+@Return: The list of points belonging to the path
 */
 Point* dijkstra::calculatePath(Point** cloud, int h, int w, Point source, Point destination) {
 
-	rows = h; //rows of map - height
-	cols = w; //cols of map - width
+	rowsMap = h; //rows of map - height
+	colsMap = w; //cols of map - width
 	int src = findPosition(cloud, source, h, w);
 	int dest = findPosition(cloud, destination, h, w);
-	if (src == -1 || dest == -1) { std::cout << "\nPunto INIZIO o FINE non sulla mappa\n" << endl; return nullptr; }
+	if (src == -1 || dest == -1) { std::cout << "\nSTARTING or FINISHING point not on the map!!\n" << endl; return nullptr; }
 
 	numVertices = h * w; //number vertices of graph: each position on map is a vertex
 	path = (int*)malloc((numVertices + 1) * sizeof(int)); //new int[numVertices + 1];
 
-	int** cloudMap = new int*[rows];
-	for (int i = 0; i < rows; i++) {
-		cloudMap[i] = new int[cols];
+	// Allocate the weigthed map and initialize it
+	Matrix cloudMap = new int*[rowsMap];
+	for (int i = 0; i < rowsMap; i++) {
+		cloudMap[i] = new int[colsMap];
 	}
 
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
+	for (int i = 0; i < rowsMap; i++) {
+		for (int j = 0; j < colsMap; j++) {
 				cloudMap[i][j] = cloud[i][j].getCloudPercentage();
 		}
 	}
@@ -375,21 +377,22 @@ Point* dijkstra::calculatePath(Point** cloud, int h, int w, Point source, Point 
 	printf("number of vertices in the matrix: %d\n", numVertices);
 
 	//remove zero point on map
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
+	for (int i = 0; i < rowsMap; i++) {
+		for (int j = 0; j < colsMap; j++) {
 			if (cloudMap[i][j] == 0) {
 				cloudMap[i][j] = 1;
 			}
 		}
 	}
 
-	matrix = createGraph(cloudMap);
+	// Create the adjacency matrix
+	adjWeightedMap = createGraphAdjMatr(cloudMap);
 
 	//Print debug only cloud map
 	if (DISPLAY_CLOUD) {
 		printf("\nStampa mappa nuvole:\n");
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
+		for (int i = 0; i < rowsMap; i++) {
+			for (int j = 0; j < colsMap; j++) {
 				printf("%d ", cloudPositionMap[i][j]);
 			}
 			printf("\n");
@@ -401,7 +404,7 @@ Point* dijkstra::calculatePath(Point** cloud, int h, int w, Point source, Point 
 		printf("\nStampa matrice adiacenze:\n");
 		for (int i = 0; i < numVertices; i++) {
 			for (int j = 0; j < numVertices; j++) {
-				printf("%d ", matrix[i][j]);
+				printf("%d ", adjWeightedMap[i][j]);
 			}
 			printf("\n");
 		}
@@ -412,13 +415,13 @@ Point* dijkstra::calculatePath(Point** cloud, int h, int w, Point source, Point 
 		for (int j = 0; j < numVertices; j++) {
 			for (int i = 0; i < numVertices; i++) {
 				printf("Origine: %d, destinazione: %d \n", i, j);
-				dijkstraAlgorithm(matrix, i, j);
+				dijkstraAlgorithm(adjWeightedMap, i, j);
 				printf("\n\n");
 			}
 		}
 	}
 
-	dijkstraAlgorithm(matrix, src, dest);
+	dijkstraAlgorithm(adjWeightedMap, src, dest);
 	path = getShortestPath();
 
 	Point* route = pathToCoordinate(cloud, path);
@@ -436,8 +439,8 @@ Point* dijkstra::pathToCoordinate(Point** cloud, int* path) {
 	int cnt = 0;
 	
 	for (int k = 0; k < lengthPath; k++) {
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
+		for (int i = 0; i < rowsMap; i++) {
+			for (int j = 0; j < colsMap; j++) {
 				if (cnt==path[k]) {
 					route[k] = cloud[i][j];
 				}
@@ -452,7 +455,7 @@ Point* dijkstra::pathToCoordinate(Point** cloud, int* path) {
 
 //DEBUG ONLY -> Visual debug
 //Display the path on video -> DEBUG only
-void dijkstra::displayPathOnConsole(int** matrix) {
+void dijkstra::displayPathOnConsole(Matrix matrix) {
 
 	printf("Path: ");
 	printf("%d ", sourceVertex);
@@ -478,8 +481,8 @@ void dijkstra::displayPathOnConsole(int** matrix) {
 	
 	printf("\n");
 	int cnt = 0, k = 0;
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
+	for (int i = 0; i < rowsMap; i++) {
+		for (int j = 0; j < colsMap; j++) {
 			if (cnt == sourceVertex) {
 				printf("%d ", matrix[i][j]);
 			} else if (path[k] == cnt ) {
@@ -496,8 +499,8 @@ void dijkstra::displayPathOnConsole(int** matrix) {
 }
 
 //return the matrix adjacency
-int** dijkstra::getMatrix() {
-	return matrix;
+Matrix dijkstra::getAdjMatrix() {
+	return adjWeightedMap;
 }
 
 //return the lenght path
