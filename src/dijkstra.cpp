@@ -344,33 +344,33 @@ int dijkstra::findPosition(Point** weightedMap, Point pp, int row, int col) {
 }
 
 /**MAIN function of this class
-@param1: weather map
+@param1: weighted map
 @param2: number rows map
 @param3: number cols map
 @param4: source position
 @param5: destination position
 @Return: The list of points belonging to the path
 */
-Point* dijkstra::calculatePath(Point** cloud, int h, int w, Point source, Point destination) {
+Point* dijkstra::calculatePath(Point** weightedMap, int h, int w, Point source, Point destination) {
 
 	rowsMap = h; //rows of map - height
 	colsMap = w; //cols of map - width
-	int src = findPosition(cloud, source, h, w);
-	int dest = findPosition(cloud, destination, h, w);
+	int src = findPosition(weightedMap, source, h, w);
+	int dest = findPosition(weightedMap, destination, h, w);
 	if (src == -1 || dest == -1) { std::cout << "\nSTARTING or FINISHING point not on the map!!\n" << endl; return nullptr; }
 
 	numVertices = h * w; //number vertices of graph: each position on map is a vertex
 	path = (int*)malloc((numVertices + 1) * sizeof(int)); //new int[numVertices + 1];
 
 	// Allocate the weigthed map and initialize it
-	Matrix cloudMap = new int*[rowsMap];
+	Matrix weightedMap_ = new int*[rowsMap];
 	for (int i = 0; i < rowsMap; i++) {
-		cloudMap[i] = new int[colsMap];
+		weightedMap_[i] = new int[colsMap];
 	}
 
 	for (int i = 0; i < rowsMap; i++) {
 		for (int j = 0; j < colsMap; j++) {
-				cloudMap[i][j] = cloud[i][j].getCloudPercentage();
+				weightedMap_[i][j] = weightedMap[i][j].getCloudPercentage();
 		}
 	}
 
@@ -379,14 +379,14 @@ Point* dijkstra::calculatePath(Point** cloud, int h, int w, Point source, Point 
 	//remove zero point on map
 	for (int i = 0; i < rowsMap; i++) {
 		for (int j = 0; j < colsMap; j++) {
-			if (cloudMap[i][j] == 0) {
-				cloudMap[i][j] = 1;
+			if (weightedMap_[i][j] == 0) {
+				weightedMap_[i][j] = 1;
 			}
 		}
 	}
 
 	// Create the adjacency matrix
-	adjWeightedMap = createGraphAdjMatr(cloudMap);
+	adjWeightedMap = createGraphAdjMatr(weightedMap_);
 
 	//Print debug only cloud map
 	if (DISPLAY_CLOUD) {
@@ -424,11 +424,11 @@ Point* dijkstra::calculatePath(Point** cloud, int h, int w, Point source, Point 
 	dijkstraAlgorithm(adjWeightedMap, src, dest);
 	path = getShortestPath();
 
-	Point* route = pathToCoordinate(cloud, path);
+	Point* route = pathToCoordinate(weightedMap, path);
 
 	if (DISPLAY_PATH) {
-		printf("\nPercorso: \n");
-		displayPathOnConsole(cloudMap);
+		printf("\nPath: \n");
+		displayPathOnConsole(weightedMap);
 	}
 
 	return route;

@@ -21,7 +21,7 @@ Matrix readMap(const std::string& filePath) {
     while (std::getline(file, line)) {
         ++lineNumber;
         std::istringstream stream(line);
-        std::vector<double> row;
+        std::vector<float> row;
 
         while (true) {
             stream >> std::ws;
