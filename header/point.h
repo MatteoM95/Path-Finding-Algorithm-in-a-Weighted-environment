@@ -1,22 +1,12 @@
 #pragma once
+#include <vector>
 
-class Point {
-    public:
-        
-        Point();
-        Point(float weight, int x_, int y_);
-        int getX();
-        int getY();
-        int getWeight();
 
-        void setX(int x);
-        void setY(int y);
-        void setWeight(float weight);
+struct Point {
+    float weight; // cost
+    int x;
+    int y;
+    int position; // unique position inside the map
+}
 
-        void printPointInfo();
-
-    private:
-        float weight;
-        int x;
-        int y;
-};
+void printPointInfo(Point p);

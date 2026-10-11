@@ -1,7 +1,7 @@
 #ifndef DIJKSTRA
 #define DIJKSTRA
 
-#include "Point.h"
+#include "point.h"
 #include "mapUtils.h"
 
 //Class Dijkstra
