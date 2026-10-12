@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-
+// Better a class?
 struct Point {
     float weight; // cost
     int x;
